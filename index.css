@@ -27,9 +27,9 @@ main {
 
 .parties a {
   display: block;
-  border: 1px solid #ccc;
+  border: 2px solid #ccc;
   border-radius: 0.25rem;
-  padding: 1ch;
+  padding: 2ch;
   text-decoration: none;
   color: black;
 }
