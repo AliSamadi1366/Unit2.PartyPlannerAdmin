@@ -1,6 +1,6 @@
 // === Constants ===
 const BASE = "https://fsa-crud-2aa9294fe819.herokuapp.com/api";
-const COHORT = ""; // Make sure to change this!
+const COHORT = "/2412-ftb-et-web-am"; // Make sure to change this!
 const API = BASE + COHORT;
 
 // === State ===
@@ -33,6 +33,30 @@ async function getParty(id) {
   }
 }
 
+async function addParty(newParty) {
+  try {
+    await fetch(API + "/events", {
+      method: "POST",
+      headers: {
+        "content-TYPE": "application/json",
+      },
+      body: JSON.stringify(newParty),
+    });
+    await getParties();
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function removeParty(id) {
+  try {
+    await fetch(API + "/" + id, { method: "DELETE" });
+    selectedParty = null;
+    await getParties();
+  } catch (error) {
+    console.error(error);
+  }
+}
 /** Updates state with all RSVPs from the API */
 async function getRsvps() {
   try {
@@ -102,7 +126,12 @@ function SelectedParty() {
     <address>${selectedParty.location}</address>
     <p>${selectedParty.description}</p>
     <GuestList></GuestList>
+    <button>Remove party</button>
   `;
+  const $button = $party.querySelector("button");
+  $button.addEventListener("click", () => {
+    removeParty(selectedParty.id);
+  });
   $party.querySelector("GuestList").replaceWith(GuestList());
 
   return $party;
@@ -117,7 +146,6 @@ function GuestList() {
     )
   );
 
-  // Simple components can also be created anonymously:
   const $guests = guestsAtParty.map((guest) => {
     const $guest = document.createElement("li");
     $guest.textContent = guest.name;
@@ -126,6 +154,42 @@ function GuestList() {
   $ul.replaceChildren(...$guests);
 
   return $ul;
+}
+
+function NewPartyForm() {
+  const $form = document.createElement("form");
+  $form.innerHTML = `
+    <label>
+      Party name
+      <input name="name" required />
+    </label>
+    <label>
+      Description
+      <input name="description" required />
+    </label>
+    <label>
+      Party location
+      <input name="location" required />
+    </label>
+    <label>
+      Date
+      <input name="date" type="date" required/>
+    </label>  
+    <button>Add party</button>
+  `;
+  $form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const data = new FormData($form);
+    const isoDate = new Date(data.get("date")).toISOString();
+    const newParty = {
+      name: data.get("name"),
+      description: data.get("description"),
+      location: data.get("location"),
+      date: isoDate,
+    };
+    addParty(newParty);
+  });
+  return $form;
 }
 
 // === Render ===
@@ -137,6 +201,8 @@ function render() {
       <section>
         <h2>Upcoming Parties</h2>
         <PartyList></PartyList>
+        <h3>Add a new party</h3>
+        <NewPartyForm></NewPartyForm>
       </section>
       <section id="selected">
         <h2>Party Details</h2>
@@ -146,6 +212,7 @@ function render() {
   `;
 
   $app.querySelector("PartyList").replaceWith(PartyList());
+  $app.querySelector("NewPartyForm").replaceWith(NewPartyForm());
   $app.querySelector("SelectedParty").replaceWith(SelectedParty());
 }
 
