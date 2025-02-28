@@ -50,7 +50,7 @@ async function addParty(newParty) {
 
 async function removeParty(id) {
   try {
-    await fetch(API + "/" + id, { method: "DELETE" });
+    await fetch(API + "/events/" + id, { method: "DELETE" });
     selectedParty = null;
     await getParties();
   } catch (error) {
@@ -102,7 +102,6 @@ function PartyListItem(party) {
 function PartyList() {
   const $ul = document.createElement("ul");
   $ul.classList.add("parties");
-
   const $parties = parties.map(PartyListItem);
   $ul.replaceChildren(...$parties);
 
